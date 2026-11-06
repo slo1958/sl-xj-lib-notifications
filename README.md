@@ -19,15 +19,6 @@ Sub NotificationReceived(Sender as string, Topic as String, Message as String, S
 
 ### Information related to a notification
  
-The message object used by the library contains more information. If the application needs access to those information, it can implement the interface itfNotifiableWithRawMessage instead of the itfNotifiable interface.
-
-```Xojo
-sub MessageReceived(msg as clNotificationMessage)
-
-```
-
-A given object should not implement the two interfaces.
- 
 If a message should be sent to more than one subscriber, it is cloned, each subscriber receiving a distinct object.
 
 
@@ -78,22 +69,34 @@ All subscribing windows will receive the notification related to the topic "Sele
 
 When the application starts and restores saved settings a similar call will be forwarded to all windows.
 
-Note that this behaviour can be disabled in the configuration parameters.
+Note that this behaviour can be disabled globally in the configuration parameters or for a single instance by setting the ClientID to -1.
 
-## Can we disable the filter on ClientID ?
+### More information about a message
+ 
+The message object used by the library contains more information. If the application needs access to those information, it can implement the interface itfNotifiableWithRawMessage instead of the itfNotifiable interface.
+
+```Xojo
+sub MessageReceived(msg as clNotificationMessage)
+
+```
+
+A given object should not implement the two interfaces.
+
+## Questions ?
+### Can we disable the filter on ClientID ?
 Yes, either in the configuration parameters or for a given message or subscription by setting the ClientID to -1
 
-## The '$SYS' topic
+### The '$SYS' topic
 
 The Notification manager sends notifications to the '$SYS' topic and other objects are not allowed to publish notifications with that topic. Anyone can subscribe to the topic.
 
 If there are no subscriptions to that topic, the messages are discarded.
 
-## Can we have more than one Notification manager ?
+### Can we have more than one Notification manager ?
 Yes. There are no connections between the managers. This means that any message published using one manager are not seen by the other manager. The only solution would be to implement an object subscribing to the first manager and publishing on the second manager.
 
-## Do we have structured topics, like subscribing to 'aaa/*'
+### Do we have structured topics, like subscribing to 'aaa/*'
 Not yet :)
 
-## What is the point of not starting the notification system when allocated?
+### What is the point of not starting the notification system when allocated?
 When the manager is running, messages sent to topics without subscriptions are discared. If the App.Open or any configuration method sends notification during the startup process, all of them will be ignored. By letting other objects subscribe to relevant topics before starting the manager, we ensure that subscribers will receive the relevant notification generated during startup.
