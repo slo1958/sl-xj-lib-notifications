@@ -538,8 +538,8 @@ Implements actionNotificationReceiver
 		Private Configuration As clNotificationConfiguration
 	#tag EndProperty
 
-	#tag Property, Flags = &h0
-		Shared DefaultNM As clNotificationManager
+	#tag Property, Flags = &h21
+		Private Shared DefaultNM As clNotificationManager
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

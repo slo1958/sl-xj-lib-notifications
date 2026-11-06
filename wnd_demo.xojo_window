@@ -98,7 +98,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       Visible         =   True
       Width           =   163
    End
-   Begin DesktopButton Button1
+   Begin DesktopButton btn_subscribe
       AllowAutoDeactivate=   True
       Bold            =   False
       Cancel          =   False
@@ -250,7 +250,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       Visible         =   True
       Width           =   163
    End
-   Begin DesktopButton Button2
+   Begin DesktopButton btn_publish
       AllowAutoDeactivate=   True
       Bold            =   False
       Cancel          =   False
@@ -440,26 +440,16 @@ End
 #tag WindowCode
 	#tag Event
 		Sub Opening()
-		  System.DebugLog("WIndow handle " + HandleToInt.ToHex)
+		  System.DebugLog("WIndow handle " + WindowHandleAsInteger.ToHex)
 		  
-		  lb_handle.Text = "Window handle " + HandleToInt.ToString
+		  lb_handle.Text = "Window handle " + WindowHandleAsInteger.ToString
 		  
 		End Sub
 	#tag EndEvent
 
 
 	#tag Method, Flags = &h0
-		Function HandleToInt() As int64
-		  var v as variant = self.Handle
-		  
-		  return v.Int64Value
-		  
-		  
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Sub SignalReceived(Sender as string, Topic as String, Message as String, SenderID as integer)
+		Sub NotificationReceived(Sender as string, Topic as String, Message as String, SenderID as integer)
 		  // Part of the Module1.itfNotifiable interface.
 		  
 		  Listbox1.AddRow("")
@@ -474,20 +464,30 @@ End
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function WindowHandleAsInteger() As int64
+		  var v as variant = self.Handle
+		  
+		  return v.Int64Value
+		  
+		  
+		End Function
+	#tag EndMethod
+
 
 #tag EndWindowCode
 
-#tag Events Button1
+#tag Events btn_subscribe
 	#tag Event
 		Sub Pressed()
 		  var topic as string = tf_SubTopic.Text.Trim
 		  
-		  call clNotificationManager.GetDefault.Subscribe(topic, self, HandleToInt)
+		  call clNotificationManager.GetDefault.Subscribe(topic, self, WindowHandleAsInteger)
 		  
 		  tf_SubTopic.Text =""
 		  
 		  
-		  var arr() as pair = clNotificationManager.GetDefault.ListMySubscriptionsWithID(HandleToInt)
+		  var arr() as pair = clNotificationManager.GetDefault.ListMySubscriptionsWithID(WindowHandleAsInteger)
 		  
 		  listbox2.RemoveAllRows
 		  listbox2.ColumnCount = 2
@@ -507,10 +507,10 @@ End
 		End Sub
 	#tag EndEvent
 #tag EndEvents
-#tag Events Button2
+#tag Events btn_publish
 	#tag Event
 		Sub Pressed()
-		  clNotificationManager.GetDefault.Publish(CurrentMethodName,  tf_sendTopic.text.trim ,  tf_sendMsg.text.trim, HandleToInt)
+		  clNotificationManager.GetDefault.Publish(CurrentMethodName,  tf_sendTopic.text.trim ,  tf_sendMsg.text.trim, WindowHandleAsInteger)
 		  
 		  
 		End Sub

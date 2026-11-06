@@ -1,7 +1,7 @@
 #tag Interface
 Protected Interface itfNotifiable
 	#tag Method, Flags = &h0
-		Sub SignalReceived(Sender as string, Topic as String, Message as String, SenderClientID as int64)
+		Sub NotificationReceived(Sender as string, Topic as String, Message as String, SenderClientID as int64)
 		  
 		End Sub
 	#tag EndMethod

@@ -126,7 +126,7 @@ Implements actionNotificationReceiver
 		  
 		  msg.MarkDistrbuted()
 		  
-		  if self.StandardCallback <> nil then self.StandardCallback.SignalReceived( _
+		  if self.StandardCallback <> nil then self.StandardCallback.NotificationReceived( _
 		  msg.Sender _
 		  , msg.Topic _
 		  , msg.Message _
