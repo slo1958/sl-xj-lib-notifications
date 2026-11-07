@@ -11,7 +11,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
    HasMaximizeButton=   True
    HasMinimizeButton=   True
    HasTitleBar     =   True
-   Height          =   510
+   Height          =   500
    ImplicitInstance=   False
    MacProcID       =   0
    MaximumHeight   =   32000
@@ -152,7 +152,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       HasHorizontalScrollbar=   False
       HasVerticalScrollbar=   True
       HeadingIndex    =   -1
-      Height          =   174
+      Height          =   164
       Index           =   -2147483648
       InitialValue    =   ""
       Italic          =   False
@@ -203,7 +203,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   374
+      Top             =   364
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -243,7 +243,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   372
+      Top             =   362
       Transparent     =   False
       Underline       =   False
       ValidationMask  =   ""
@@ -275,7 +275,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TabPanelIndex   =   0
       TabStop         =   True
       Tooltip         =   ""
-      Top             =   406
+      Top             =   396
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -307,7 +307,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   406
+      Top             =   396
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -347,7 +347,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   406
+      Top             =   396
       Transparent     =   False
       Underline       =   False
       ValidationMask  =   ""
@@ -380,7 +380,7 @@ Begin DesktopWindow wnd_demo Implements Notifications.itfNotifiable
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   477
+      Top             =   467
       Transparent     =   False
       Underline       =   False
       Visible         =   True

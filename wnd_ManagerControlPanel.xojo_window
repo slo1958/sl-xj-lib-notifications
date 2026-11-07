@@ -11,7 +11,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
    HasMaximizeButton=   True
    HasMinimizeButton=   True
    HasTitleBar     =   True
-   Height          =   244
+   Height          =   342
    ImplicitInstance=   True
    MacProcID       =   0
    MaximumHeight   =   32000
@@ -24,7 +24,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
    Title           =   "Control panel"
    Type            =   0
    Visible         =   True
-   Width           =   476
+   Width           =   528
    Begin DesktopButton Button1
       AllowAutoDeactivate=   True
       Bold            =   False
@@ -140,7 +140,8 @@ Begin DesktopWindow wnd_ManagerControlPanel
       Transparent     =   False
       Underline       =   False
       Visible         =   True
-      Width           =   226
+      Width           =   267
+      _ScrollOffset   =   0
       _ScrollWidth    =   -1
    End
    Begin DesktopLabel Label1
@@ -153,7 +154,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
       Height          =   20
       Index           =   -2147483648
       Italic          =   False
-      Left            =   30
+      Left            =   41
       LockBottom      =   False
       LockedInPosition=   False
       LockLeft        =   True
@@ -169,11 +170,103 @@ Begin DesktopWindow wnd_ManagerControlPanel
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   191
+      Top             =   106
       Transparent     =   False
       Underline       =   False
       Visible         =   True
-      Width           =   100
+      Width           =   69
+   End
+   Begin DesktopGroupBox GroupBox1
+      AllowAutoDeactivate=   True
+      Bold            =   False
+      Caption         =   "Demo windows"
+      Enabled         =   True
+      FontName        =   "System"
+      FontSize        =   0.0
+      FontUnit        =   0
+      Height          =   89
+      Index           =   -2147483648
+      Italic          =   False
+      Left            =   20
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      Scope           =   0
+      TabIndex        =   6
+      TabPanelIndex   =   0
+      TabStop         =   True
+      Tooltip         =   ""
+      Top             =   233
+      Transparent     =   False
+      Underline       =   False
+      Visible         =   True
+      Width           =   488
+      Begin DesktopButton btn_demo_variant
+         AllowAutoDeactivate=   True
+         Bold            =   False
+         Cancel          =   False
+         Caption         =   "Using variant parameters"
+         Default         =   False
+         Enabled         =   True
+         FontName        =   "System"
+         FontSize        =   0.0
+         FontUnit        =   0
+         Height          =   20
+         Index           =   -2147483648
+         InitialParent   =   "GroupBox1"
+         Italic          =   False
+         Left            =   274
+         LockBottom      =   False
+         LockedInPosition=   False
+         LockLeft        =   True
+         LockRight       =   False
+         LockTop         =   True
+         MacButtonStyle  =   0
+         Scope           =   0
+         TabIndex        =   0
+         TabPanelIndex   =   0
+         TabStop         =   True
+         Tooltip         =   ""
+         Top             =   269
+         Transparent     =   False
+         Underline       =   False
+         Visible         =   True
+         Width           =   207
+      End
+      Begin DesktopButton btn_windows
+         AllowAutoDeactivate=   True
+         Bold            =   False
+         Cancel          =   False
+         Caption         =   "Demo accross windows"
+         Default         =   False
+         Enabled         =   True
+         FontName        =   "System"
+         FontSize        =   0.0
+         FontUnit        =   0
+         Height          =   20
+         Index           =   -2147483648
+         InitialParent   =   "GroupBox1"
+         Italic          =   False
+         Left            =   33
+         LockBottom      =   False
+         LockedInPosition=   False
+         LockLeft        =   True
+         LockRight       =   False
+         LockTop         =   True
+         MacButtonStyle  =   0
+         Scope           =   0
+         TabIndex        =   1
+         TabPanelIndex   =   0
+         TabStop         =   True
+         Tooltip         =   ""
+         Top             =   269
+         Transparent     =   False
+         Underline       =   False
+         Visible         =   True
+         Width           =   207
+      End
    End
 End
 #tag EndDesktopWindow
@@ -212,10 +305,53 @@ End
 		End Sub
 	#tag EndEvent
 #tag EndEvents
+#tag Events Button2
+	#tag Event
+		Sub Pressed()
+		  clNotificationManager.GetDefault.Pause
+		End Sub
+	#tag EndEvent
+#tag EndEvents
 #tag Events Timer1
 	#tag Event
 		Sub Action()
 		  RefreshInfo
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events GroupBox1
+	#tag Event
+		Sub Opening()
+		  
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events btn_demo_variant
+	#tag Event
+		Sub Pressed()
+		  var w as new wnd_using_Variant
+		  
+		  w.Show
+		  
+		  
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events btn_windows
+	#tag Event
+		Sub Pressed()
+		   
+		  
+		  var vx() as integer = array (10,10,700,700)
+		  var vy() as integer = array(20, 600, 20, 600)
+		  
+		  for i as integer = 0 to 3
+		    var w1 as new wnd_demo
+		    w1.Left = vx(i)
+		    w1.top = vy(i)
+		    w1.Show
+		    
+		  next
 		End Sub
 	#tag EndEvent
 #tag EndEvents
