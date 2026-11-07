@@ -83,6 +83,50 @@ sub MessageReceived(msg as clNotificationMessage)
 A given object should not implement the two interfaces.
 
 ## Questions ?
+
+### Can we include something else in a notification ?
+The notification supports an optional field type variant.
+
+Sending a notification with a reference to a listbox:
+```Xojo
+var myTopic as string = "update-listbox"
+var myMessage as string = .....
+
+clNotificationManager.PublishToDefault(Sender, mytopic, myMessage, myListBox, -1)
+
+```
+In this example that we set the ClientID to -1 to prevent filtering on ClientID. 
+
+The subscriber must implement the itfNotifiableWithRawMessage interface and provide an implementation for MessageReceived:
+
+```Xojo
+
+sub MessageReceived(msg as clNotificationMessage)
+//
+// The message msg prvides:
+//  msg.Sender (string)
+//  msg.Topic (string)
+//  msg.Message (string)
+//  msg.MessageDetails (variant)
+//  msg.SenderClientID (integer)
+//  
+//
+var listbox as DesktopListBox
+
+
+if msg.MessageDetails isa DesktopListBox then
+  listbox = DesktopListBox(msg.MessageDetails)
+  
+  listbox.AddRow("Received [" + msg.Message+ "] from [ " + msg.Sender + "]")
+  
+end if
+
+```
+
+### What happen to the value of the variant field of a message
+When the message is cloned during the sorting phase, the value of the variant is copied, but if the variant is a pointer, the underlying object is not duplicated.
+
+
 ### Can we disable the filter on ClientID ?
 Yes, either in the configuration parameters or for a given message or subscription by setting the ClientID to -1
 

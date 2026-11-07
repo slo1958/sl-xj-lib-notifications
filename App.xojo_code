@@ -5,12 +5,6 @@ Inherits DesktopApplication
 		Sub Opening()
 		  Signal( "APP","SYSTEM", "Start", 1)
 		  
-		  
-		  for i as integer = 0 to 4
-		    var w1 as new wnd_demo
-		    w1.Show
-		    
-		  next
 		End Sub
 	#tag EndEvent
 

@@ -1,9 +1,9 @@
 #tag Class
-Protected Class clNotificationMessage
+Class clNotificationMessage
 	#tag Method, Flags = &h0
 		Function Clone() As clNotificationMessage
 		  
-		  var temp as new clNotificationMessage(self.mSender, self.mTopic, self.mMessage, self.mSenderClientID)
+		  var temp as new clNotificationMessage(self.mSender, self.mTopic, self.mMessage, self.mDetails, self.mSenderClientID)
 		  
 		  temp.mOriginalCreatedAt = self.mCreatedAt
 		  temp.mOriginalMessageID = self.mMessageId
@@ -15,7 +15,7 @@ Protected Class clNotificationMessage
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Constructor(prmCallerID as string, prmTopic as string, prmMessage as string, prmSenderClientId as integer)
+		Sub Constructor(prmCallerID as string, prmTopic as string, prmMessage as string, prmDetails as Variant, prmSenderClientId as integer)
 		  self.mCreatedAt = System.MicroSeconds
 		  self.mMessageID = NextID
 		  
@@ -25,6 +25,7 @@ Protected Class clNotificationMessage
 		  self.mSender = prmCallerID
 		  self.mTopic = prmTopic
 		  self.mMessage = prmMessage
+		  self.mDetails = prmDetails
 		  
 		  self.mSenderClientID = prmSenderClientId
 		  
@@ -41,7 +42,15 @@ Protected Class clNotificationMessage
 
 	#tag Method, Flags = &h0
 		Sub MarkDistrbuted()
-		  self.DistrbutedOn = system.Microseconds
+		  if self.DistrbutedOn = 0 then
+		    self.DistrbutedOn = system.Microseconds
+		    
+		  else
+		    
+		    
+		    Raise new clNotificationException(clNotificationException.errDupDistribute, clNotificationException.errDupDistributeCode)
+		    
+		  end if
 		  
 		End Sub
 	#tag EndMethod
@@ -49,6 +58,13 @@ Protected Class clNotificationMessage
 	#tag Method, Flags = &h0
 		Function Message() As string
 		  return self.mMessage
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function MessageDetails() As variant
+		  return self.mDetails
 		  
 		End Function
 	#tag EndMethod
@@ -108,6 +124,10 @@ Protected Class clNotificationMessage
 
 	#tag Property, Flags = &h21
 		Private mCreatedAt As Double
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mDetails As variant
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

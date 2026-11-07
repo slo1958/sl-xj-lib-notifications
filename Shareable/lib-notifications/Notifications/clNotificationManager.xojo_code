@@ -9,7 +9,7 @@ Implements actionNotificationReceiver
 		  var tempTopic as string
 		  
 		  for i as integer = 0 to self.Subscribers.LastIndex
-		     
+		    
 		    var s as clNotificationSubscription = self.Subscribers(i)
 		    
 		    if s.id = prmSubscriptionID then 
@@ -50,7 +50,7 @@ Implements actionNotificationReceiver
 		    end if
 		    
 		    if arr.count > 0 then
-		       self.SubscribersByTopic.Value(tempTopic) = arr
+		      self.SubscribersByTopic.Value(tempTopic) = arr
 		    else
 		      self.SubscribersByTopic.Remove(tempTopic)
 		      
@@ -108,16 +108,19 @@ Implements actionNotificationReceiver
 		  if Subscribers.Count = 0 then return
 		  
 		  for each s as clNotificationSubscription in self.Subscribers
-		    select case  self.Configuration.DistributionStrategy 
-		      
-		    case  clNotificationConfiguration.DistributionOrder.CycleQueueFirst 
-		      s.DistributeNext
-		      
-		    case clNotificationConfiguration.DistributionOrder.EmptyQueueFirst
-		      s.DistributeAll
-		      
-		    end select
 		    
+		    if s.NbrMessagesInQueue > 0 then
+		      select case  self.Configuration.DistributionStrategy 
+		        
+		      case  clNotificationConfiguration.DistributionOrder.CycleQueueFirst 
+		        s.DistributeNext
+		        
+		      case clNotificationConfiguration.DistributionOrder.EmptyQueueFirst
+		        s.DistributeAll
+		        
+		      end select
+		      
+		    end if
 		    
 		  next
 		End Sub
@@ -136,24 +139,8 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Sub internalPublish(callerID as string, Topic as string, Message as string, SenderClientID as integer)
-		  
-		  self.TraceMessage("Publish " + callerID + " " + Topic + " " + Message)
-		  
-		  var msg as new clNotificationMessage(callerId, Topic, Message, SenderClientID)
-		  self.MessagesToDispatch.Add(msg)
-		  
-		  if self.IsRunning then
-		    ProcessQueues
-		    
-		  end if
-		  
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
 		Private Function internal_ProcessParameters(MessageText as string, paramarray MessageParameters as String) As string
-		   
+		  
 		  
 		  var tmp_return As String = MessageText
 		  
@@ -168,6 +155,22 @@ Implements actionNotificationReceiver
 		  Return tmp_return
 		  
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub internal_Publish(callerID as string, Topic as string, Message as string, Details as variant, SenderClientID as integer)
+		  
+		  self.TraceMessage("Publish " + callerID + " " + Topic + " " + Message)
+		  
+		  var msg as new clNotificationMessage(callerId, Topic, Message, Details, SenderClientID)
+		  self.InputQueue.Add(msg)
+		  
+		  if self.IsRunning then
+		    ProcessQueues
+		    
+		  end if
+		  
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -252,7 +255,25 @@ Implements actionNotificationReceiver
 
 	#tag Method, Flags = &h0
 		Function NbrMessagesInInputQueue() As integer
-		  Return self.MessagesToDispatch.Count
+		  Return self.InputQueue.Count
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function NbrMessagesInTransit() As integer
+		  //
+		  // Total number of messages in the system
+		  // This number may grow once messages from the input queue are sorted
+		  //
+		  var n as integer =  self.InputQueue.Count 
+		  
+		  for each s as clNotificationSubscription in self.Subscribers
+		    n = n +  s.NbrMessagesInQueue
+		    
+		  next
+		  
+		  return n
 		  
 		End Function
 	#tag EndMethod
@@ -283,12 +304,12 @@ Implements actionNotificationReceiver
 		  
 		  self.TraceMessage("Pause")
 		  
-		  self.internalPublish(cInternalSender, cReservedTopicSystem, "System paused", -1)
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem, "System paused", nil, -1)
 		  
 		  self.IsRunning = False
 		  self.processLoopTimer.RunMode = timer.RunModes.Off
 		  
-		  ProcessQueues
+		  // ProcessQueues
 		  
 		  
 		  
@@ -299,7 +320,11 @@ Implements actionNotificationReceiver
 		Private Sub PerformAction()
 		  // Part of the actionNotificationReceiver interface.
 		  
+		  
 		  ProcessQueues
+		  
+		  UpdateTimerStatus
+		  
 		End Sub
 	#tag EndMethod
 
@@ -309,7 +334,7 @@ Implements actionNotificationReceiver
 		  
 		  self.TraceMessage("ProcessQueues")
 		  
-		  if MessagesToDispatch.Count = 0 and Subscribers.Count = 0 then Return
+		  if InputQueue.Count = 0 and Subscribers.Count = 0 then Return
 		  
 		  self.TraceMessage("Has pending message to sort")
 		  
@@ -335,17 +360,36 @@ Implements actionNotificationReceiver
 		Sub Publish(callerID as string, Topic as string, Message as string, SenderClientID as integer)
 		  
 		  if topic <> cReservedTopicSystem then
-		    self.internalPublish(callerID, Topic, Message, SenderClientID)
+		    self.internal_Publish(callerID, Topic, Message, nil, SenderClientID)
 		    
 		    
 		  end if
+		   
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Publish(callerID as string, Topic as string, Message as string, Details as variant, SenderClientID as integer)
 		  
+		  if topic <> cReservedTopicSystem then
+		    self.internal_Publish(callerID, Topic, Message, Details, SenderClientID)
+		    
+		    
+		  end if
+		   
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Shared Sub PublishToDefault(callerID as string, Topic as string, Message as string, SenderClientID as integer)
 		  clNotificationManager.GetDefault.Publish(callerID, Topic, Message, SenderClientID)
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Shared Sub PublishToDefault(callerID as string, Topic as string, Message as string, Details as variant, SenderClientID as integer)
+		  clNotificationManager.GetDefault.Publish(callerID, Topic, Message, Details, SenderClientID)
 		  
 		End Sub
 	#tag EndMethod
@@ -370,9 +414,9 @@ Implements actionNotificationReceiver
 		  
 		  Subscribers.Add(subscription)
 		  
-		  self.internalPublish(cInternalSender, cReservedTopicSystem,  _
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  _
 		  internal_ProcessParameters("Register client %0 for topic %1", subscription.SubscriberClientID.ToString,NotificationTopic) _
-		  , -1)
+		  ,nil , -1)
 		  
 		  self.TraceMessage("Subscription wih id " + subscription.ID.ToString)
 		  
@@ -385,7 +429,7 @@ Implements actionNotificationReceiver
 		  
 		  self.TraceMessage("Run")
 		  
-		  self.internalPublish(cInternalSender, cReservedTopicSystem, "System running", -1)
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem, "System running", nil, -1)
 		  
 		  self.IsRunning = true
 		  
@@ -412,16 +456,16 @@ Implements actionNotificationReceiver
 		  self.TraceMessage("SortMessages")
 		  
 		  if self.SubscribersByTopic =nil then 
-		    self.MessagesToDispatch.RemoveAll
+		    self.InputQueue.RemoveAll
 		    Return
 		    
 		  end if
 		  
-		  if MessagesToDispatch.Count = 0 then return
+		  if InputQueue.Count = 0 then return
 		  
 		  self.TraceMessage("SortMessages has messages to dispatch")
 		  
-		  for each m as clNotificationMessage in self.MessagesToDispatch
+		  for each m as clNotificationMessage in self.InputQueue
 		    var t as string = m.Topic
 		    
 		    if self.SubscribersByTopic.HasKey(t) then
@@ -449,7 +493,7 @@ Implements actionNotificationReceiver
 		    end if
 		  next
 		  
-		  self.MessagesToDispatch.RemoveAll
+		  self.InputQueue.RemoveAll
 		  
 		  Return
 		  
@@ -462,11 +506,11 @@ Implements actionNotificationReceiver
 		  self.TraceMessage("Start")
 		  
 		  if DropPendingMessage then
-		    self.MessagesToDispatch.RemoveAll
+		    self.InputQueue.RemoveAll
 		    
 		  end if
 		  
-		  self.internalPublish(cInternalSender, cReservedTopicSystem,  "System staring", -1)
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  "System staring", nil, -1)
 		  
 		  self.Run
 		  
@@ -513,6 +557,13 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Shared Function SubscribeToDefault(NotificationTopic as string, Consumer as itfNotifiableWithRawMessage, SubscriberClientID as integer) As integer
+		  return clNotificationManager.GetDefault.Subscribe(NotificationTopic, Consumer, SubscriberClientID)
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Shared Sub TraceMessage(msg as String)
 		  
 		  if TraceAll then System.DebugLog(msg)
@@ -529,7 +580,28 @@ Implements actionNotificationReceiver
 		    
 		  next
 		  
-		  self.internalPublish(cInternalSender, cReservedTopicSystem, "Uupdate configuration", -1)
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  "Uupdate configuration", nil, -1)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub UpdateTimerStatus()
+		  
+		  //
+		  // Anything else left to process
+		  // Otherwise, switch off the timer until next publish
+		  //
+		  
+		  
+		  if NbrMessagesInTransit = 0 then
+		    self.processLoopTimer.RunMode = timer.RunModes.Off
+		    
+		  else
+		    self.processLoopTimer.RunMode = timer.RunModes.Multiple
+		    
+		  end if
+		  
+		  return
 		End Sub
 	#tag EndMethod
 
@@ -543,11 +615,11 @@ Implements actionNotificationReceiver
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private IsRunning As Boolean
+		Private InputQueue() As clNotificationMessage
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private MessagesToDispatch() As clNotificationMessage
+		Private IsRunning As Boolean
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
