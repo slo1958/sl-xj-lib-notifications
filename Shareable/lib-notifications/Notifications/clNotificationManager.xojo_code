@@ -567,7 +567,7 @@ Implements actionNotificationReceiver
 		Shared Sub TraceMessage(msg as String)
 		  
 		  if TraceAll then System.DebugLog(msg)
-		  //"[" ++ "]"
+		  
 		End Sub
 	#tag EndMethod
 

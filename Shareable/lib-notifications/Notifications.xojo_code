@@ -1,19 +1,6 @@
 #tag Module
 Protected Module Notifications
 	#tag Method, Flags = &h0
-		Sub LinkToNotification(Control as DesktopControl)
-		  
-		  var nWindow as string
-		  
-		  if Control = nil then Return
-		  
-		  if control.Window <> nil then nWindow = Control.Window.Title
-		  
-		  
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Sub Signal(callerID as string, Topic as string, Message as string, ClientID as integer)
 		  clNotificationManager.PublishToDefault(callerID, Topic, Message, ClientID)
 		  

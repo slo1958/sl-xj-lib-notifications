@@ -314,8 +314,14 @@ End
 	#tag Method, Flags = &h0
 		Sub MessageReceived(msg as clNotificationMessage)
 		  // Part of the Notifications.itfNotifiableWithRawMessage interface.
-		  
-		   
+		  //
+		  // The message msg provides:
+		  //   msg.Sender (string)
+		  //   msg.Topic (string)
+		  //   msg.Message (string)
+		  //   msg.MessageDetails (variant)
+		  //   msg.SenderClientID (integer)
+		  // 
 		  var listbox as DesktopListBox
 		  
 		  

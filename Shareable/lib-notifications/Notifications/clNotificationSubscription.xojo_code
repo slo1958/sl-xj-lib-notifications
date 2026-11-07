@@ -100,8 +100,8 @@ Implements actionNotificationReceiver
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Shared Function NextID() As integer
+	#tag Method, Flags = &h21
+		Private Shared Function NextID() As integer
 		  UniqueSubscriptionID = UniqueSubscriptionID + 1
 		  return UniqueSubscriptionID
 		  
@@ -210,8 +210,8 @@ Implements actionNotificationReceiver
 		Private StartedOn As Double
 	#tag EndProperty
 
-	#tag Property, Flags = &h0
-		Shared UniqueSubscriptionID As Integer
+	#tag Property, Flags = &h21
+		Private Shared UniqueSubscriptionID As Integer
 	#tag EndProperty
 
 
@@ -253,22 +253,6 @@ Implements actionNotificationReceiver
 			Visible=true
 			Group="Position"
 			InitialValue="0"
-			Type="Integer"
-			EditorType=""
-		#tag EndViewProperty
-		#tag ViewProperty
-			Name="StartedOn"
-			Visible=false
-			Group="Behavior"
-			InitialValue=""
-			Type="Double"
-			EditorType=""
-		#tag EndViewProperty
-		#tag ViewProperty
-			Name="mSubscriptionID"
-			Visible=false
-			Group="Behavior"
-			InitialValue=""
 			Type="Integer"
 			EditorType=""
 		#tag EndViewProperty
