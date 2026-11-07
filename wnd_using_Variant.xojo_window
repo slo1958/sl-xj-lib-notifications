@@ -291,6 +291,15 @@ End
 
 #tag WindowCode
 	#tag Event
+		Sub Closing()
+		  
+		  clNotificationManager.GetDefault.CancelSubscription(SubscriptionID)
+		  return
+		  
+		End Sub
+	#tag EndEvent
+
+	#tag Event
 		Sub Opening()
 		  //
 		  // This is used to test and demonstrate the use of the 'details' field
@@ -301,7 +310,7 @@ End
 		  // Since we do not want to apply filtering on ClientID, we use -1
 		  //
 		  
-		  call clNotificationManager.SubscribeToDefault("update-listbox",self, -1)
+		  SubscriptionID = clNotificationManager.SubscribeToDefault("update-listbox",self, -1)
 		  
 		  //
 		  // The window implements the interface itfNotifiableWithRawMessage, so it will receive the complete message
@@ -337,13 +346,34 @@ End
 	#tag EndMethod
 
 
+	#tag Property, Flags = &h21
+		Private MsgCounter As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private SubscriptionID As Integer
+	#tag EndProperty
+
+
+	#tag Constant, Name = cstDefaultMessage, Type = String, Dynamic = False, Default = \"Example", Scope = Private
+	#tag EndConstant
+
+
 #tag EndWindowCode
 
 #tag Events btn_add_left
 	#tag Event
 		Sub Pressed()
+		  var temp as string = tf_message.Text.Trim()
 		  
-		  clNotificationManager.PublishToDefault(CurrentMethodName, "update-listbox", tf_message.text.trim(), lb_left, -1)
+		  clNotificationManager.PublishToDefault(CurrentMethodName, "update-listbox", temp, lb_left, -1)
+		  
+		  if temp.Left(cstDefaultMessage.Length) = cstDefaultMessage then
+		    MsgCounter = MsgCounter + 1
+		    tf_message.Text = cstDefaultMessage + "-" + MsgCounter.ToString
+		    
+		  end if
+		  
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -351,7 +381,16 @@ End
 	#tag Event
 		Sub Pressed()
 		  
-		  clNotificationManager.PublishToDefault(CurrentMethodName, "update-listbox", tf_message.text.trim(), lb_right, -1)
+		  var temp as string = tf_message.Text.Trim()
+		  
+		  clNotificationManager.PublishToDefault(CurrentMethodName, "update-listbox", temp, lb_right, -1)
+		  
+		  if temp.Left(cstDefaultMessage.Length) = cstDefaultMessage then
+		    MsgCounter = MsgCounter + 1
+		    tf_message.Text = cstDefaultMessage + "-" + MsgCounter.ToString
+		    
+		  end if
+		  
 		End Sub
 	#tag EndEvent
 #tag EndEvents

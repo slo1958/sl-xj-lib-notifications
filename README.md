@@ -28,7 +28,8 @@ A default manager is allocated and paused.
 |----------------|----------|-------------------------------------------------------------------------|
 | Sender         | String   | A string identifying the sender, carried but not used by the library    |
 | Topic          | String   | The topic of the notification                                           |
-| Message        | String   | The body of the message                                                 |
+| Message        | String   | The body of the message     
+| Details        | Variant   | (optional) something else to share with the receiver                                                
 | SenderClientID | interger | A unique number identifying the sender. Used by the library (see below) |
 
 ### About Sender and SenderClientID
@@ -36,7 +37,7 @@ The Sender is a string identifying the sender. Its values are based on conventio
 
 The SenderClientID is an integer. By default, if the senderCientID and the subscriberClientID are identical, the message is not forwarded to the subscriber.
 
-The main purpose of the SenderClientID is to prevent the explosion of notifications. A basic example, you have two or more windows where something needs to be kept in synch and that something can be updated by the user in any window. 
+The main purpose of the SenderClientID is to prevent an explosion of notifications. A basic example, you have two or more windows where something needs to be kept in synch and that something can be updated by the user in any window. 
 
 Each window subscribes to the same topic and uses its handle as SubcriberClientID. Assuming the window implements one of the itfNotifiablexxx interface:
 
@@ -84,8 +85,8 @@ A given object should not implement the two interfaces.
 
 ## Questions ?
 
-### Can we include something else in a notification ?
-The notification supports an optional field type variant.
+### Can we include something else than just a string in a notification ?
+The notification supports an optional field of type variant.
 
 Sending a notification with a reference to a listbox:
 ```Xojo
@@ -103,7 +104,7 @@ The subscriber must implement the itfNotifiableWithRawMessage interface and prov
 
 sub MessageReceived(msg as clNotificationMessage)
 //
-// The message msg prvides:
+// The message msg provides:
 //  msg.Sender (string)
 //  msg.Topic (string)
 //  msg.Message (string)
@@ -123,7 +124,7 @@ end if
 
 ```
 
-### What happen to the value of the variant field of a message
+### What happen to the value of the variant field of a message ?
 When the message is cloned during the sorting phase, the value of the variant is copied, but if the variant is a pointer, the underlying object is not duplicated.
 
 
@@ -131,7 +132,6 @@ When the message is cloned during the sorting phase, the value of the variant is
 Yes, either in the configuration parameters or for a given message or subscription by setting the ClientID to -1
 
 ### The '$SYS' topic
-
 The Notification manager sends notifications to the '$SYS' topic and other objects are not allowed to publish notifications with that topic. Anyone can subscribe to the topic.
 
 If there are no subscriptions to that topic, the messages are discarded.
@@ -143,4 +143,4 @@ Yes. There are no connections between the managers. This means that any message 
 Not yet :)
 
 ### What is the point of not starting the notification system when allocated?
-When the manager is running, messages sent to topics without subscriptions are discared. If the App.Open or any configuration method sends notification during the startup process, all of them will be ignored. By letting other objects subscribe to relevant topics before starting the manager, we ensure that subscribers will receive the relevant notification generated during startup.
+When the manager is running, messages sent to topics without subscriptions are discared. If the App.Open or any configuration method sends notification during the startup process, all of them will be discarded. By letting other objects subscribe to relevant topics before starting the manager, we ensure that subscribers will receive the relevant notification generated during startup.

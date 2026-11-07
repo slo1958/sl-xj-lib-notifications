@@ -343,7 +343,7 @@ End
 		   
 		  
 		  var vx() as integer = array (10,10,700,700)
-		  var vy() as integer = array(20, 600, 20, 600)
+		  var vy() as integer = array(100, 650, 100, 650)
 		  
 		  for i as integer = 0 to 3
 		    var w1 as new wnd_demo
