@@ -154,6 +154,7 @@ End
 		Sub Pressed()
 		  var p() as pair
 		  
+		  // For demo purpose, use the same topic we use to get a message when the simulation is done
 		  for i as integer = 0 to 9
 		    p.Add(cClockSimTopic: "Simulated message " + i.ToString)
 		    
@@ -161,7 +162,8 @@ End
 		  
 		  Listbox1.RemoveAllRows
 		   
-		  NotificationSimulator(p, 2000, cClockSimTopic, "$Done$")
+		  //  run the simulation -  p is an array of pairs (topic:message)
+		  NotificationSimulator(p, 2000, cClockSimTopic, "Simualtion completed")
 		   
 		  
 		  return

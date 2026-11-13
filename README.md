@@ -185,3 +185,19 @@ When the manager is running, messages sent to topics without subscriptions are d
 
 ### Why do we need timer based notification since Xojo already provides an easy to user Timer objects ?
 There is no point to use the Notification library only to use the timer based notifications. However, if an object is already subscribing to notifications, hence the notification library is used, adding a timer based notification is easier than using the Timer class.
+
+
+### What is the notification simulation ?
+This is a class used to publish notifications stored in an array of pairs
+
+To control the simulator in a window
+```Xojo
+// Add to the window opening event handler
+
+self.Subscriptions.Add(clNotificationManager.SubscribeToDefault(cClockSimTopic, self, -1))
+
+// To run the simulation -  p is an array of pairs (topic:message)
+NotificationSimulator(p, 2000, cClockSimTopic, "$Done$")
+
+```
+Note that the window subscribes to the topic cClockSimTopic. To view the messages sent to the subscriber(s) under test, the window should also subscribe to the topic(s) used in the simulation data.
