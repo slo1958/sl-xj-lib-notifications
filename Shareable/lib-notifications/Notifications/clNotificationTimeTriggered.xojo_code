@@ -79,6 +79,7 @@ Implements actionNotificationReceiver
 		    temp = Message
 		    
 		  end if
+		  
 		  clNotificationManager.GetDefault.Publish(cClockCallerID, Topic, temp, -1)
 		  
 		  self.mcallCount = self.mcallCount + 1
@@ -142,10 +143,11 @@ Implements actionNotificationReceiver
 
 	#tag Method, Flags = &h0
 		Sub UpdateMessage(newMessage as string)
-		  self.mMessage = Message
+		  self.mMessage = newMessage
 		  
 		  self.mMessageHasPlaceHolders =  Message.IndexOf("%") > 0
 		  
+		  Return
 		End Sub
 	#tag EndMethod
 

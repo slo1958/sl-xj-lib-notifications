@@ -486,6 +486,13 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Shared Function RegisterTimerInDefault(Topic as string, Message as string, Periodicity as integer) As integer
+		  return clNotificationManager.GetDefault.RegisterTimer(Topic, Message, Periodicity)
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Run()
 		  
 		  self.TraceMessage("Run")
@@ -678,7 +685,7 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub TimerUpdateMessage1(TimerID as integer, newPeriodicity as integer)
+		Sub TimerUpdatePeriodicity(TimerID as integer, newPeriodicity as integer)
 		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
 		  
 		  if timerIndex < 0 then return

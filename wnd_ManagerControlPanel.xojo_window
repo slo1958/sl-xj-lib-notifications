@@ -299,6 +299,38 @@ Begin DesktopWindow wnd_ManagerControlPanel
          Visible         =   True
          Width           =   207
       End
+      Begin DesktopButton btn_time1
+         AllowAutoDeactivate=   True
+         Bold            =   False
+         Cancel          =   False
+         Caption         =   "Demo using simulation"
+         Default         =   False
+         Enabled         =   True
+         FontName        =   "System"
+         FontSize        =   0.0
+         FontUnit        =   0
+         Height          =   20
+         Index           =   -2147483648
+         InitialParent   =   "GroupBox1"
+         Italic          =   False
+         Left            =   274
+         LockBottom      =   False
+         LockedInPosition=   False
+         LockLeft        =   True
+         LockRight       =   False
+         LockTop         =   True
+         MacButtonStyle  =   0
+         Scope           =   0
+         TabIndex        =   3
+         TabPanelIndex   =   0
+         TabStop         =   True
+         Tooltip         =   ""
+         Top             =   313
+         Transparent     =   False
+         Underline       =   False
+         Visible         =   True
+         Width           =   207
+      End
    End
 End
 #tag EndDesktopWindow
@@ -395,6 +427,17 @@ End
 		   
 		  w1.Show
 		   
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events btn_time1
+	#tag Event
+		Sub Pressed()
+		  
+		  var w1 as new wnd_sim
+		  
+		  w1.Show
+		  
 		End Sub
 	#tag EndEvent
 #tag EndEvents
