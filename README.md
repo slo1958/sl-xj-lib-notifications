@@ -1,5 +1,6 @@
 # sl-xj-lib-notifications
 Xojo 2026.2.1
+Updated 2026-11-12
 
 # Simple notification system
  
@@ -83,6 +84,42 @@ sub MessageReceived(msg as clNotificationMessage)
 
 A given object should not implement the two interfaces.
 
+
+### Timer based notification, how to get a notification every xx seconds
+
+A notification timer is something requiring a topic and a message, like a normal 'publish' and a periodicity. The granularity is the granularity of the period property of Xojo timers.
+
+The message may contain placeholders which are replaced every time a message is published.
+
+```Xojo
+// Register a timer 
+TimeriD = clNotificationManager.GetDefault.RegisterTimer(cClockTopic,"It is now %0, this is the call #%1 ",10000)
+```
+
+
+| PlaceHolder | Replaced by                   |  |
+|-------------|------------------------------------|---|
+| %0          | Current time in SqlDateTime format |  |
+| %1          | Message counter                    |  |
+
+For example, when a notification is received from the timer regsitered above, the message template will become:
+
+    It is now [2026-11-13 17:51:02], this is the call #[22] 
+
+
+To subscribe to a topic where notifications are sent, subscribed:$
+
+```Xojo
+clNotificationManager.SubscribeToDefault(cClockTopic, self, -1)
+```
+
+A given timer can be start, stopped and cancelled:
+```Xojo
+clNotificationManager.GetDefault.TimerStart(TimeriD)
+clNotificationManager.GetDefault.TimerStop(TimeriD)
+clNotificationManager.GetDefault.TimerCancel(TimeriD)
+```
+
 ## Questions ?
 
 ### Can we include something else than just a string in a notification ?
@@ -144,3 +181,7 @@ Not yet :)
 
 ### What is the point of not starting the notification system when allocated?
 When the manager is running, messages sent to topics without subscriptions are discared. If the App.Open or any configuration method sends notification during the startup process, all of them will be discarded. By letting other objects subscribe to relevant topics before starting the manager, we ensure that subscribers will receive the relevant notification generated during startup.
+
+
+### Why do we need timer based notification since Xojo already provides an easy to user Timer objects ?
+There is no point to use the Notification library only to use the timer based notifications. However, if an object is already subscribing to notifications, hence the notification library is used, adding a timer based notification is easier than using the Timer class.
