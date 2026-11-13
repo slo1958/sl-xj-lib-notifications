@@ -11,7 +11,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
    HasMaximizeButton=   True
    HasMinimizeButton=   True
    HasTitleBar     =   True
-   Height          =   342
+   Height          =   472
    ImplicitInstance=   True
    MacProcID       =   0
    MaximumHeight   =   32000
@@ -24,7 +24,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
    Title           =   "Control panel"
    Type            =   0
    Visible         =   True
-   Width           =   528
+   Width           =   642
    Begin DesktopButton Button1
       AllowAutoDeactivate=   True
       Bold            =   False
@@ -184,7 +184,7 @@ Begin DesktopWindow wnd_ManagerControlPanel
       FontName        =   "System"
       FontSize        =   0.0
       FontUnit        =   0
-      Height          =   89
+      Height          =   150
       Index           =   -2147483648
       Italic          =   False
       Left            =   20
@@ -267,6 +267,38 @@ Begin DesktopWindow wnd_ManagerControlPanel
          Visible         =   True
          Width           =   207
       End
+      Begin DesktopButton btn_time
+         AllowAutoDeactivate=   True
+         Bold            =   False
+         Cancel          =   False
+         Caption         =   "Demo using timer"
+         Default         =   False
+         Enabled         =   True
+         FontName        =   "System"
+         FontSize        =   0.0
+         FontUnit        =   0
+         Height          =   20
+         Index           =   -2147483648
+         InitialParent   =   "GroupBox1"
+         Italic          =   False
+         Left            =   33
+         LockBottom      =   False
+         LockedInPosition=   False
+         LockLeft        =   True
+         LockRight       =   False
+         LockTop         =   True
+         MacButtonStyle  =   0
+         Scope           =   0
+         TabIndex        =   2
+         TabPanelIndex   =   0
+         TabStop         =   True
+         Tooltip         =   ""
+         Top             =   313
+         Transparent     =   False
+         Underline       =   False
+         Visible         =   True
+         Width           =   207
+      End
    End
 End
 #tag EndDesktopWindow
@@ -340,7 +372,7 @@ End
 #tag Events btn_windows
 	#tag Event
 		Sub Pressed()
-		   
+		  
 		  
 		  var vx() as integer = array (10,10,700,700)
 		  var vy() as integer = array(100, 650, 100, 650)
@@ -352,6 +384,17 @@ End
 		    w1.Show
 		    
 		  next
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events btn_time
+	#tag Event
+		Sub Pressed()
+		  
+		  var w1 as new wnd_clock
+		   
+		  w1.Show
+		   
 		End Sub
 	#tag EndEvent
 #tag EndEvents

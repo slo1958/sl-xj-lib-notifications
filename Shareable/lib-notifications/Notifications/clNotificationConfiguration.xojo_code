@@ -122,7 +122,11 @@ Protected Class clNotificationConfiguration
 			Group="Behavior"
 			InitialValue=""
 			Type="DistributionOrder"
-			EditorType=""
+			EditorType="Enum"
+			#tag EnumValues
+				"0 - EmptyQueueFirst"
+				"1 - CycleQueueFirst"
+			#tag EndEnumValues
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="HandleStructuredTopicSubscription"
@@ -138,7 +142,11 @@ Protected Class clNotificationConfiguration
 			Group="Behavior"
 			InitialValue=""
 			Type="HandlingStrategy"
-			EditorType=""
+			EditorType="Enum"
+			#tag EnumValues
+				"0 - SortFirst"
+				"1 - DistributeFirst"
+			#tag EndEnumValues
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="MessageDistributionDelay"
@@ -146,6 +154,14 @@ Protected Class clNotificationConfiguration
 			Group="Behavior"
 			InitialValue=""
 			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="ApplyFilterOnClientID"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Boolean"
 			EditorType=""
 		#tag EndViewProperty
 	#tag EndViewBehavior

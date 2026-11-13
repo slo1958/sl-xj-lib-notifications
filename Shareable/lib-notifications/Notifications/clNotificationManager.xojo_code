@@ -5,23 +5,13 @@ Implements actionNotificationReceiver
 		Sub CancelSubscription(prmSubscriptionID as integer)
 		  
 		  var tempSub as clNotificationSubscription = nil
-		  var tempSubIndex as integer = -1
 		  var tempTopic as string
 		  
-		  for i as integer = 0 to self.Subscribers.LastIndex
-		    
-		    var s as clNotificationSubscription = self.Subscribers(i)
-		    
-		    if s.id = prmSubscriptionID then 
-		      tempSub = s
-		      tempSubIndex = i
-		      exit 
-		      
-		    end if
-		    
-		  next
+		  var tempSubIndex as integer = FindSubscriberIndex(prmSubscriptionID)
 		  
-		  if tempSub = nil then Return
+		  if tempSubIndex < 0 then return
+		  
+		  tempSub = self.Subscribers(tempSubIndex)
 		  
 		  tempTopic = tempSub.Topic
 		  
@@ -66,8 +56,24 @@ Implements actionNotificationReceiver
 		    
 		  end if
 		  
+		  self.PublishSystemNotification(cMsgCancelSubscription + ";" + _
+		  ProcessParameters(cTemplateSubscriptionInfo, tempSub.SubscriberClientID.ToString,tempSub.Topic) _
+		  )
+		  
 		  return
 		  
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub CancelSubscriptions(SubscriptionList() as integer)
+		  for each item as integer in SubscriptionList
+		    self.CancelSubscription(item)
+		    
+		  next
+		  
+		  return 
 		  
 		End Sub
 	#tag EndMethod
@@ -126,6 +132,38 @@ Implements actionNotificationReceiver
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function FindPeriodicSenderIndex(prmSenderID as integer) As integer
+		  
+		  
+		  for i as integer = 0 to self.PeriodicSenders.LastIndex
+		    
+		    var s as clNotificationTimeTriggered = self.PeriodicSenders(i)
+		    
+		    if s.TimerID = prmSenderID then  return i
+		    
+		  next
+		  
+		  return -1
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function FindSubscriberIndex(prmSubscriptionID as integer) As integer
+		  
+		  for i as integer = 0 to self.Subscribers.LastIndex
+		    
+		    var s as clNotificationSubscription = self.Subscribers(i)
+		    
+		    if s.id = prmSubscriptionID then  return i
+		    
+		  next
+		  
+		  return -1
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Shared Function GetDefault() As clNotificationManager
 		  if DefaultNM  = nil then 
@@ -134,25 +172,6 @@ Implements actionNotificationReceiver
 		  end if
 		  
 		  return DefaultNM
-		  
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Function internal_ProcessParameters(MessageText as string, paramarray MessageParameters as String) As string
-		  
-		  
-		  var tmp_return As String = MessageText
-		  
-		  
-		  For i As Integer = 0 To MessageParameters.Ubound
-		    var formattedParam as string =  MessageParameters(i)
-		    
-		    tmp_return = tmp_return.Replace("%"+Str(i), formattedParam)
-		    
-		  Next
-		  
-		  Return tmp_return
 		  
 		End Function
 	#tag EndMethod
@@ -304,7 +323,7 @@ Implements actionNotificationReceiver
 		  
 		  self.TraceMessage("Pause")
 		  
-		  self.internal_Publish(cInternalSender, cReservedTopicSystem, "System paused", nil, -1)
+		  self.PublishSystemNotification(cMsgSystemPause)
 		  
 		  self.IsRunning = False
 		  self.processLoopTimer.RunMode = timer.RunModes.Off
@@ -323,9 +342,27 @@ Implements actionNotificationReceiver
 		  
 		  ProcessQueues
 		  
-		  UpdateTimerStatus
+		  UpdateMasterTimerStatus
 		  
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Shared Function ProcessParameters(MessageText as string, paramarray MessageParameters as String) As string
+		  
+		  
+		  var tmp_return As String = MessageText
+		  
+		  For i As Integer = 0 To MessageParameters.Ubound
+		    var formattedParam as string =  MessageParameters(i)
+		    
+		    tmp_return = tmp_return.Replace("%"+Str(i), formattedParam)
+		    
+		  Next
+		  
+		  Return tmp_return
+		  
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
@@ -364,7 +401,7 @@ Implements actionNotificationReceiver
 		    
 		    
 		  end if
-		   
+		  
 		End Sub
 	#tag EndMethod
 
@@ -376,7 +413,14 @@ Implements actionNotificationReceiver
 		    
 		    
 		  end if
-		   
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub PublishSystemNotification(Message as string)
+		  self.internal_Publish(cInternalSender, cReservedTopicSystem, Message, nil, -1)
+		  
 		End Sub
 	#tag EndMethod
 
@@ -414,9 +458,9 @@ Implements actionNotificationReceiver
 		  
 		  Subscribers.Add(subscription)
 		  
-		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  _
-		  internal_ProcessParameters("Register client %0 for topic %1", subscription.SubscriberClientID.ToString,NotificationTopic) _
-		  ,nil , -1)
+		  self.PublishSystemNotification(cMsgNewSubscription + ";" + _
+		  ProcessParameters(cTemplateSubscriptionInfo, subscription.SubscriberClientID.ToString,NotificationTopic) _
+		  )
 		  
 		  self.TraceMessage("Subscription wih id " + subscription.ID.ToString)
 		  
@@ -425,11 +469,28 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function RegisterTimer(Topic as string, Message as string, Periodicity as integer) As integer
+		  
+		  var t as new clNotificationTimeTriggered(Topic, Message, 0)
+		  
+		  self.PeriodicSenders.Add(t)
+		  
+		  t.UpdatePeriodicity(Periodicity)
+		  
+		  t.Start
+		  
+		  return t.TimerID
+		  
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Run()
 		  
 		  self.TraceMessage("Run")
 		  
-		  self.internal_Publish(cInternalSender, cReservedTopicSystem, "System running", nil, -1)
+		  self.PublishSystemNotification(cMsgSystemRunning)
 		  
 		  self.IsRunning = true
 		  
@@ -510,7 +571,7 @@ Implements actionNotificationReceiver
 		    
 		  end if
 		  
-		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  "System staring", nil, -1)
+		  self.PublishSystemNotification(cMsgSystemStarting)
 		  
 		  self.Run
 		  
@@ -564,6 +625,72 @@ Implements actionNotificationReceiver
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub TimerCancel(TimerID as integer)
+		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
+		  
+		  if timerIndex < 0 then return
+		  
+		  self.PeriodicSenders(timerIndex).Stop
+		  
+		  self.PeriodicSenders.RemoveAt(timerIndex)
+		  
+		  return
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub TimerStart(TimerID as integer)
+		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
+		  
+		  if timerIndex < 0 then return
+		  
+		  self.PeriodicSenders(timerIndex).Start
+		  
+		  return
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub TimerStop(TimerID as integer)
+		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
+		  
+		  if timerIndex < 0 then return
+		  
+		  self.PeriodicSenders(timerIndex).Stop
+		  
+		  return
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub TimerUpdateMessage(TimerID as integer, newMessage as string)
+		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
+		  
+		  if timerIndex < 0 then return
+		  
+		  self.PeriodicSenders(timerIndex).UpdateMessage(newMessage)
+		  
+		  return
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub TimerUpdateMessage1(TimerID as integer, newPeriodicity as integer)
+		  var timerIndex as integer = FindPeriodicSenderIndex(timerID)
+		  
+		  if timerIndex < 0 then return
+		  
+		  self.PeriodicSenders(timerIndex).UpdatePeriodicity(newPeriodicity)
+		  
+		  return
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Shared Sub TraceMessage(msg as String)
 		  
 		  if TraceAll then System.DebugLog(msg)
@@ -580,12 +707,15 @@ Implements actionNotificationReceiver
 		    
 		  next
 		  
-		  self.internal_Publish(cInternalSender, cReservedTopicSystem,  "Uupdate configuration", nil, -1)
+		  self.PublishSystemNotification(cMsgUpdateConfiguration)
+		  
+		  Return
+		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Sub UpdateTimerStatus()
+		Private Sub UpdateMasterTimerStatus()
 		  
 		  //
 		  // Anything else left to process
@@ -623,6 +753,10 @@ Implements actionNotificationReceiver
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private PeriodicSenders() As clNotificationTimeTriggered
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private processLoopTimer As Timer
 	#tag EndProperty
 
@@ -642,7 +776,28 @@ Implements actionNotificationReceiver
 	#tag Constant, Name = cInternalSender, Type = String, Dynamic = False, Default = \"Notification system", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = cMsgCancelSubscription, Type = String, Dynamic = False, Default = \"07-Cancel subscription", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cMsgNewSubscription, Type = String, Dynamic = False, Default = \"06-New subscription", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cMsgSystemPause, Type = String, Dynamic = False, Default = \"01-System paused", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cMsgSystemRunning, Type = String, Dynamic = False, Default = \"01-System running", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cMsgSystemStarting, Type = String, Dynamic = False, Default = \"00-System starting", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cMsgUpdateConfiguration, Type = String, Dynamic = False, Default = \"05-Update configuration", Scope = Public
+	#tag EndConstant
+
 	#tag Constant, Name = cReservedTopicSystem, Type = String, Dynamic = False, Default = \"$SYS", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = cTemplateSubscriptionInfo, Type = String, Dynamic = False, Default = \"Client %0 for topic %1", Scope = Public
 	#tag EndConstant
 
 
